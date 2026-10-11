@@ -1,0 +1,115 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Organic Inn Return Scanner</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 520px;
+      margin: auto;
+      padding: 18px;
+      color: #222;
+    }
+    button, input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 13px;
+      margin: 8px 0;
+      font-size: 16px;
+    }
+    button { cursor: pointer; }
+    #reader { margin-top: 15px; }
+    #result {
+      background: #f2f2f2;
+      padding: 12px;
+      border-radius: 8px;
+      overflow-wrap: anywhere;
+    }
+  </style>
+</head>
+<body>
+  <h2>Organic Inn — Return Scanner</h2>
+  <p>Returned parcel ka barcode scan karein.</p>
+
+  <button id="startBtn" onclick="startScanner()">
+    Open Camera Scanner
+  </button>
+
+  <div id="reader"></div>
+
+  <label for="tracking">Tracking Number</label>
+  <input id="tracking" placeholder="Ya tracking number manually enter karein">
+
+  <button onclick="continueToReturnForm()">Continue to Return Form</button>
+
+  <p id="result">Scanner start karne ke liye button press karein.</p>
+
+  <script>
+    let scanner = null;
+    let scanned = false;
+
+    function showMessage(message) {
+      document.getElementById("result").textContent = message;
+    }
+
+    function startScanner() {
+      if (typeof Html5Qrcode === "undefined") {
+        showMessage("Scanner library load nahi hui. Internet check karein.");
+        return;
+      }
+
+      if (scanner) return;
+
+      scanned = false;
+      scanner = new Html5Qrcode("reader");
+
+      scanner.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 260, height: 130 } },
+        function(decodedText) {
+          if (scanned) return;
+          scanned = true;
+
+          document.getElementById("tracking").value =
+            decodedText.trim();
+
+          showMessage("Barcode read ho gaya. Tracking number verify karein.");
+
+          scanner.stop().then(function() {
+            scanner.clear();
+            scanner = null;
+          }).catch(function() {
+            scanner = null;
+          });
+        },
+        function() {}
+      ).catch(function(error) {
+        scanner = null;
+        showMessage("Camera error: " + error +
+          ". Browser permission aur HTTPS check karein.");
+      });
+    }
+
+    function continueToReturnForm() {
+      const tracking =
+        document.getElementById("tracking").value.trim();
+
+      if (!tracking) {
+        showMessage("Pehle barcode scan karein ya tracking number enter karein.");
+        return;
+      }
+
+      // We will connect this to your existing Apps Script URL
+      // in the next step.
+      showMessage(
+        "Tracking number: " + tracking +
+        ". Scanner test successful. Backend connection abhi configure karna hai."
+      );
+    }
+  </script>
+</body>
+</html>
