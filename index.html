@@ -94,22 +94,31 @@
       });
     }
 
-    function continueToReturnForm() {
-      const tracking =
-        document.getElementById("tracking").value.trim();
+    
+function continueToReturnForm() {
+  const tracking = document
+    .getElementById("tracking")
+    .value
+    .trim();
 
-      if (!tracking) {
-        showMessage("Pehle barcode scan karein ya tracking number enter karein.");
-        return;
-      }
+  if (!tracking) {
+    showMessage(
+      "Pehle barcode scan karein ya tracking number enter karein."
+    );
+    return;
+  }
 
-      // We will connect this to your existing Apps Script URL
-      // in the next step.
-      showMessage(
-        "Tracking number: " + tracking +
-        ". Scanner test successful. Backend connection abhi configure karna hai."
-      );
-    }
+  const returnFormUrl =
+    "https://script.google.com/macros/s/AKfycbzo-AbGUfTNDy3h9pV6Ac5AIbc0cjGzr0kv1lP-3SwXNMa78tQq_B_h_ssG2YYRzv1T/exec?page=scan";
+
+  const finalUrl =
+    returnFormUrl +
+    "&tracking=" +
+    encodeURIComponent(tracking);
+
+  window.location.href = finalUrl;
+}
+
   </script>
 </body>
 </html>
