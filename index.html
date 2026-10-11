@@ -4,49 +4,100 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Organic Inn Return Scanner</title>
+  <title>Organic Inn | Return Scanner</title>
   <script src="https://unpkg.com/html5-qrcode"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --brand-purple: #51245f;
+      --brand-yellow: #f5c84c;
+      --page: #faf9f6;
+      --text: #29252d;
+      --muted: #716b74;
+      --border: #e8e3e9;
+    }
+    * { box-sizing: border-box; }
     body {
-      font-family: Arial, sans-serif;
+      font-family: "DM Sans", Arial, sans-serif;
+      background: var(--page);
+      color: var(--text);
       max-width: 520px;
-      margin: auto;
-      padding: 18px;
-      color: #222;
+      margin: 0 auto;
+      padding: 22px 16px 36px;
     }
-    button, input {
+    .header { text-align: center; padding: 8px 0 22px; }
+    .logo { width: 220px; max-width: 78%; height: auto; object-fit: contain; }
+    .eyebrow {
+      color: var(--brand-purple);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      margin-top: 10px;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: 0 8px 28px rgba(51, 31, 55, .05);
+    }
+    h1 { font-size: 23px; margin: 0 0 8px; }
+    .intro { color: var(--muted); font-size: 14px; line-height: 1.6; margin: 0 0 20px; }
+    label { display: block; font-size: 13px; font-weight: 700; margin: 15px 0 6px; }
+    input, button {
       width: 100%;
-      box-sizing: border-box;
-      padding: 13px;
-      margin: 8px 0;
-      font-size: 16px;
+      padding: 14px;
+      border-radius: 10px;
+      font: inherit;
+      font-size: 15px;
     }
-    button { cursor: pointer; }
-    #reader { margin-top: 15px; }
+    input { border: 1px solid var(--border); background: #fff; outline: none; }
+    input:focus { border-color: var(--brand-purple); box-shadow: 0 0 0 3px rgba(81,36,95,.09); }
+    button { cursor: pointer; font-weight: 700; border: 0; margin-top: 12px; }
+    .primary { background: var(--brand-purple); color: white; }
+    .primary:hover { background: #3e1949; }
+    .secondary { background: #fff8df; color: var(--brand-purple); border: 1px solid #f0d77c; }
+    #reader { width: 100%; margin-top: 14px; overflow: hidden; border-radius: 12px; }
     #result {
-      background: #f2f2f2;
+      background: #f7f3f8;
+      border: 1px solid var(--border);
+      color: var(--muted);
       padding: 12px;
-      border-radius: 8px;
+      margin-top: 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      line-height: 1.5;
       overflow-wrap: anywhere;
     }
+    .footer { text-align: center; color: var(--muted); font-size: 11px; margin-top: 18px; }
+    .dot { display: inline-block; width: 7px; height: 7px; background: var(--brand-yellow); border-radius: 50%; margin-right: 6px; }
   </style>
 </head>
 <body>
-  <h2>Organic Inn — Return Scanner</h2>
-  <p>Returned parcel ka barcode scan karein.</p>
+  <header class="header">
+    <img class="logo"
+      src="https://cdn.shopify.com/s/files/1/0620/8163/0441/files/organic-inn-logo.png?v=1768911239"
+      alt="Organic Inn logo">
+    <div class="eyebrow">RETURNS MANAGEMENT</div>
+  </header>
 
-  <button id="startBtn" onclick="startScanner()">
-    Open Camera Scanner
-  </button>
+  <main class="card">
+    <h1>Return Parcel Scanner</h1>
+    <p class="intro">Scan the returned parcel barcode or enter its tracking number manually.</p>
 
-  <div id="reader"></div>
+    <button class="primary" id="startBtn" onclick="startScanner()">Open Camera Scanner</button>
+    <div id="reader"></div>
 
-  <label for="tracking">Tracking Number</label>
-  <input id="tracking" placeholder="Ya tracking number manually enter karein">
+    <label for="tracking">Tracking Number</label>
+    <input id="tracking" placeholder="Enter or scan tracking number" autocomplete="off">
 
-  <button onclick="continueToReturnForm()">Continue to Return Form</button>
+    <button class="secondary" onclick="continueToReturnForm()">Continue to Return Form →</button>
+    <div id="result"><span class="dot"></span>Ready to scan a returned parcel.</div>
+  </main>
 
-  <p id="result">Scanner start karne ke liye button press karein.</p>
+  <div class="footer">Organic Inn · Internal Returns Tool</div>
 
   <script>
     let scanner = null;
@@ -61,7 +112,6 @@
         showMessage("Scanner library load nahi hui. Internet check karein.");
         return;
       }
-
       if (scanner) return;
 
       scanned = false;
@@ -73,52 +123,33 @@
         function(decodedText) {
           if (scanned) return;
           scanned = true;
-
-          document.getElementById("tracking").value =
-            decodedText.trim();
-
-          showMessage("Barcode read ho gaya. Tracking number verify karein.");
+          document.getElementById("tracking").value = decodedText.trim();
+          showMessage("Barcode scanned successfully. Continue to the return form.");
 
           scanner.stop().then(function() {
             scanner.clear();
             scanner = null;
-          }).catch(function() {
-            scanner = null;
-          });
+          }).catch(function() { scanner = null; });
         },
         function() {}
       ).catch(function(error) {
         scanner = null;
-        showMessage("Camera error: " + error +
-          ". Browser permission aur HTTPS check karein.");
+        showMessage("Camera error: " + error + ". Check browser camera permission.");
       });
     }
 
-    
-function continueToReturnForm() {
-  const tracking = document
-    .getElementById("tracking")
-    .value
-    .trim();
+    function continueToReturnForm() {
+      const tracking = document.getElementById("tracking").value.trim();
+      if (!tracking) {
+        showMessage("Please scan a barcode or enter a tracking number first.");
+        return;
+      }
 
-  if (!tracking) {
-    showMessage(
-      "Pehle barcode scan karein ya tracking number enter karein."
-    );
-    return;
-  }
+      const returnFormUrl =
+        "https://script.google.com/macros/s/AKfycbzo-AbGUfTNDy3h9pV6Ac5AIbc0cjGzr0kv1lP-3SwXNMa78tQq_B_h_ssG2YYRzv1T/exec?page=scan";
 
-  const returnFormUrl =
-    "https://script.google.com/macros/s/AKfycbzo-AbGUfTNDy3h9pV6Ac5AIbc0cjGzr0kv1lP-3SwXNMa78tQq_B_h_ssG2YYRzv1T/exec?page=scan";
-
-  const finalUrl =
-    returnFormUrl +
-    "&tracking=" +
-    encodeURIComponent(tracking);
-
-  window.location.href = finalUrl;
-}
-
+      window.location.href = returnFormUrl + "&tracking=" + encodeURIComponent(tracking);
+    }
   </script>
 </body>
 </html>
